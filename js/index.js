@@ -1,6 +1,3 @@
-
-// Accept: application/vnd.github.v3+json // used for the request
-
 const fakeResponse =[{
   "id": 132935648,
   "node_id": "MDEwOlJlcG9zaXRvcnkxMzI5MzU2NDg=",
@@ -308,21 +305,18 @@ const fakeResponse =[{
   "default_branch": "master"
 }]
 
-// what is the data
-
-//submit form
 document.addEventListener("DOMContentLoaded", () =>  {
 
   const form = document.getElementById('github-form');
   const formInput = document.getElementById("search");
-   
+  const collection = document.getElementById("github-container")
+  const userList = document.querySelector("#user-list") 
+  const repoList = document.getElementById("repos-list") 
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const inputValue = formInput.value;
-
-    // Further actions based on the input value
-    // use input to search user endpoint
     const url = (`https://api.github.com/search/users?q=${inputValue}`)
 
     fetch(url, {
@@ -332,16 +326,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
     })
     .then((response) => response.json())
     .then((userData) => userData.items.forEach(user => renderUser(user)))
-
-    // this gives an object of arrays. 
-    // array
-    // userData.items.forEach(user => console.log(user.login))
-    const collection = document.getElementById("github-container") 
-
-    
-
   })
-  const userList = document.querySelector("#user-list")  
 
   function renderUser (user) {
 
@@ -349,6 +334,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
     const div = document.createElement("div")
     const h2 = document.createElement("h2")
     const img = document.createElement("img")
+    const a = document.createElement("a")
     const p = document.createElement("p")
     const h3 = document.createElement("h3")
 
@@ -356,43 +342,32 @@ document.addEventListener("DOMContentLoaded", () =>  {
     h2.textContent = user.login
     img.src = user.avatar_url
     img.classList.add("git-image")
-    p.textContent = user.url
+    a.href = user.url
+    a.textContent = user.login
     h3.textContent= user.id
 
     div.appendChild(img)
+    p.appendChild(a)
     div.appendChild(p)
     div.appendChild(h3)
     li.appendChild(div)
     userList.appendChild(li)
 
     li.addEventListener("click", () => {
-      getRepoList(user.login)})
-
+      getRepoList(user)})
   }
-// have click
-// wet repo data
-// re
+
   function getRepoList(user) {
-    const endPointUrl =`https://api.github.com/users/${user}/repos`
+    const endPointUrl =`https://api.github.com/users/${user.login}/repos`
 
     fetch(endPointUrl, {
       headers: {
         Accept: "application/vnd.github.v3+json"
       }
     })
-    .then((response) => {
-      // const data = response.json()
-      const data = fakeResponse
-      return data
-    })
+    .then((response) => response.json())
     .then((repoData) => repoData.forEach((repo) => renderRepoList(repo)))
     }
-    
-    // change console.log above to funciton
-    // repo data is an array [ {}]
-    // get onto page
-    // find location
-  const repoList = document.getElementById("repos-list") 
     
     function renderRepoList(repo) {
       
@@ -402,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 
       h3.textContent = repo.name
       h3.classList.add("repo-fetch")
-      p.textContent = repo.name
+      p.textContent = repo.id
 
       li.appendChild(h3)
       li.appendChild(p)
